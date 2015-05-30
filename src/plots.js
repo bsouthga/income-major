@@ -14,16 +14,16 @@ const csv = fname => new Promise((resolve, reject) => {
  */
 export function render() {
 
-	let data = [
-		'../data/major_by_income.csv',
-		'../data/relative_percent.csv'
-	].map(csv);
+  let data = [
+    '../data/major_by_income.csv',
+    '../data/relative_percent.csv'
+  ].map(csv);
 
-	Promise.all(data)
-		.then(data => {
-			let [income, percent] = data;
-			print("data", income);
-		})
-		.catch(print);
+  Promise.all(data)
+    .then(data => {
+      let [income, percent] = data;
+      print("data", income);
+    })
+    .catch(print);
 
 }
