@@ -1,3 +1,4 @@
+'use strict';
 
 var assign = require('lodash.assign');
 var buffer = require('vinyl-buffer');
@@ -11,18 +12,25 @@ var watch = require('gulp-watch');
 var watchify = require('watchify');
 var livereload = require('gulp-livereload');
 var server = require('gulp-server-livereload');
+var ghPages = require('gulp-gh-pages');
 
-var customOpts = {
+let customOpts = {
   entries: ['./src/index.js'],
+  sourceMaps : 'inline',
   debug: true
 };
 
-var opts = assign({}, watchify.args, customOpts);
-var b = watchify(browserify(opts)); 
+let opts = assign({}, watchify.args, customOpts);
 
-b.transform(babelify);
+let b = watchify(browserify(opts)); 
 
-gulp.task('js', bundle); // so you can run `gulp js` to build the file
+b.transform(babelify.configure({
+  sourceMaps : 'inline',
+  modules : 'common',
+  stage: 0
+}));
+
+gulp.task('js', bundle);
 b.on('update', bundle); // on any dep update, runs the bundler
 b.on('log', gutil.log); // output build logs to terminal
 
@@ -46,10 +54,13 @@ gulp.task('server', function() {
   gulp.src('./')
     .pipe(server({
       livereload: true,
-      directoryListing: true,
       open: true
     }));
 });
 
 gulp.task('default', ['js', 'server']);
 
+gulp.task('deploy', function() {
+  return gulp.src('./*')
+    .pipe(ghPages());
+});
