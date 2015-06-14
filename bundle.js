@@ -25935,7 +25935,7 @@ var incomeChart = (function () {
         return d.mean + d.stdev;
       })]);
 
-      var xAxis = _d32["default"].svg.axis().scale(_x).orient("bottom");
+      var xAxis = _d32["default"].svg.axis().scale(_x).tickFormat(_d32["default"].format("$,")).orient("bottom");
 
       var svg = this.svg.html("").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
