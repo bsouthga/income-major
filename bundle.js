@@ -25841,8 +25841,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -25894,11 +25892,11 @@ var incomeChart = (function () {
       var color = _d32["default"].scale.category10();
 
       var income = this.data.map(function (x) {
-        return _extends({}, x, {
+        return Object.assign(x, {
           mean: Number(x.mean),
           n: Number(x.n),
           stdev: Number(x.stdev),
-          category: x.category.trim()
+          subject: x.subject.trim()
         });
       }).sort(sorter);
 
@@ -25908,7 +25906,7 @@ var incomeChart = (function () {
 
       var bb = this.container.node().getBoundingClientRect();
 
-      var margin = { top: 0, right: 50, bottom: 50, left: 320 },
+      var margin = { top: 120, right: 50, bottom: 50, left: 320 },
           width = bb.width - margin.left - margin.right,
           height = bb.height - margin.top - margin.bottom;
 
@@ -25933,20 +25931,37 @@ var incomeChart = (function () {
         return pad;
       };
 
-      var x = _d32["default"].scale.linear().range([0, width]).domain([0, _d32["default"].max(income, function (d) {
+      var _x = _d32["default"].scale.linear().range([0, width]).domain([0, _d32["default"].max(income, function (d) {
         return d.mean + d.stdev;
       })]);
 
-      var xAxis = _d32["default"].svg.axis().scale(x).orient("bottom");
+      var xAxis = _d32["default"].svg.axis().scale(_x).orient("bottom");
 
       var svg = this.svg.html("").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      var textureGen = categories.reduce(function (out, c) {
-        var texture = _textures2["default"].lines().orientation("vertical", "horizontal").size(4).strokeWidth(1).shapeRendering("crispEdges").stroke(color(c));
-        svg.call(texture);
-        out[c] = texture;
-        return out;
-      }, {});
+      var legendWidth = (width + margin.left) / categories.length;
+
+      var legend = svg.append("g").selectAll("g").data(categories).enter().append("g").attr("transform", function (d, i) {
+        return "translate(" + (legendWidth / 2 + legendWidth * i - margin.left) + "," + (30 - margin.top) + ")";
+      });
+
+      legend.append("rect").attr({
+        width: 20,
+        height: 20,
+        fill: color,
+        x: function x() {
+          return -this.getBBox().width / 2;
+        }
+      });
+
+      legend.append("text").text(function (d) {
+        return d;
+      }).style("font-size", "6pt").attr({
+        x: function x() {
+          return -this.getBBox().width / 2;
+        },
+        y: -5
+      });
 
       var bar = svg.append("g").selectAll("g").data(income).enter().append("g").classed("bar-g", true).attr("transform", function (d, i) {
         return "translate(0," + variableBarPad(i) + ")";
@@ -25968,47 +25983,73 @@ var incomeChart = (function () {
         return -width - 20;
       });
 
+      var curly = svg.append("g").append("path").attr("class", "curlyBrace").attr("d", (0, _curlyBraceJs2["default"])(_x(income[0].mean) + _x(income[0].stdev), -5, _x(income[0].mean) - _x(income[0].stdev), -5, 20, 0.5));
+
+      var curlyText = svg.append("g").append("text").text("Mean Parent Income +/- 1 Standard Deviation").attr({
+        x: function x() {
+          return _x(income[0].mean) - this.getBBox().width / 2;
+        },
+        y: -30
+      });
+
       var rects = bar.append("rect").attr("x", function (d) {
-        return x(d.mean) - x(d.stdev);
+        return _x(d.mean) - _x(d.stdev);
       }).attr("width", function (d) {
-        return 2 * x(d.stdev);
+        return 2 * _x(d.stdev);
       }).attr("height", function (d) {
-        return variableBarHeight(d);
-      }).attr("fill", "#fff").attr("stroke", function (d) {
+        return Math.max(0, variableBarHeight(d) - 1);
+      }).attr("fill", function (d) {
         return color(d.category);
       });
 
       bar.append("line").attr({
-        stroke: function stroke(d) {
-          return color(d.category);
-        },
+        stroke: "#fff",
         x1: function x1(d) {
-          return x(d.mean);
+          return _x(d.mean);
         },
         x2: function x2(d) {
-          return x(d.mean);
+          return _x(d.mean);
         },
         y1: 0,
-        y2: variableBarHeight
+        y2: function y2(d) {
+          return Math.max(0, variableBarHeight(d) - 1);
+        }
       });
 
-      rects.on("mouseover", function () {
-        _d32["default"].select(this).attr("fill", function (d) {
-          return color(d.category);
-        });
-      }).on("mouseout", function () {
-        _d32["default"].select(this).attr("fill", "#fff");
+      bar.append("line").attr({
+        stroke: "#fff",
+        x1: function x1(d) {
+          return _x(d.mean);
+        },
+        x2: function x2(d) {
+          return _x(d.mean);
+        },
+        y1: 0,
+        y2: function y2(d) {
+          return Math.max(0, variableBarHeight(d) - 1);
+        }
       });
 
       svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
 
       _d32["default"].select("#sort").on("click", function () {
         sortCat = sortCat === "subject" ? "mean" : "subject";
+
         income.sort(sorter);
+
         bar.sort(sorter).transition().duration(1000).delay(function (d, i) {
           return i * 10;
         }).attr("transform", function (d, i) {
           return "translate(0," + variableBarPad(i) + ")";
+        });
+
+        curly.transition().duration(1000).attr("d", (0, _curlyBraceJs2["default"])(_x(income[0].mean) + _x(income[0].stdev), -5, _x(income[0].mean) - _x(income[0].stdev), -5, 20, 0.5));
+
+        curlyText.transition().duration(1000).attr({
+          x: function x() {
+            return _x(income[0].mean) - this.getBBox().width / 2;
+          },
+          y: -30
         });
       });
 
@@ -26023,12 +26064,14 @@ var incomeChart = (function () {
         });
 
         trans.selectAll("rect").attr("height", function (d) {
-          return variableBarHeight(d);
+          return Math.max(0, variableBarHeight(d) - 1);
         });
 
         trans.selectAll("line").attr({
           y1: 0,
-          y2: variableBarHeight
+          y2: function y2(d) {
+            return Math.max(0, variableBarHeight(d) - 1);
+          }
         });
 
         trans.selectAll("text").attr("y", function (d) {
@@ -26036,7 +26079,7 @@ var incomeChart = (function () {
 
           var height = _getBBox3.height;
 
-          return variableBarHeight(d) / 2 + height / 2;
+          return Math.max(0, variableBarHeight(d) - 1) / 2 + height / 2;
         });
       });
     }
