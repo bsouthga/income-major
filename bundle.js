@@ -26090,7 +26090,7 @@ function render() {
     while (1) switch (context$1$0.prev = context$1$0.next) {
       case 0:
         context$1$0.next = 2;
-        return Promise.all(['../data/major_by_income.csv', '../data/relative_percent.csv'].map(csv));
+        return Promise.all(['./major_by_income.csv', './relative_percent.csv'].map(csv));
 
       case 2:
         data = context$1$0.sent;
