@@ -61,6 +61,6 @@ gulp.task('server', function() {
 gulp.task('default', ['js', 'server']);
 
 gulp.task('deploy', function() {
-  return gulp.src('./*')
+  return gulp.src('./{,**/}*')
     .pipe(ghPages());
 });
