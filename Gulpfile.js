@@ -45,7 +45,7 @@ function bundle() {
     .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
        // ->>>> Add transformation tasks to the pipeline here.
     .pipe(sourcemaps.write('./')) // writes .map file
-    .pipe(gulp.dest('./dist'))
+    .pipe(gulp.dest('./'))
     // live reload results
     .pipe(livereload());
 }
@@ -61,6 +61,10 @@ gulp.task('server', function() {
 gulp.task('default', ['js', 'server']);
 
 gulp.task('deploy', function() {
-  return gulp.src('./*')
+  return gulp.src([
+      './index.html',
+      './bundle.js',
+      './*.csv'
+    ])
     .pipe(ghPages());
 });

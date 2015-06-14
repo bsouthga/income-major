@@ -16,8 +16,8 @@ const csv = fname => new Promise((resolve, reject) => {
 export default async function render() {
 
   let data = await* [
-    '../data/major_by_income.csv',
-    '../data/relative_percent.csv',
+    './major_by_income.csv',
+    './relative_percent.csv',
   ].map(csv);
 
   let [income, percent, expected] = data;
