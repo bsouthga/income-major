@@ -7,8 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
   <style>
 
-    .container {
-      margin-top: 50px;
+    body {
       text-align: center;
     }
 
@@ -114,21 +113,16 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="one column">&nbsp;</div>
-      <div class="ten columns">
-        <h4>Parent Income and Major Choice</h4>
-        <div class="options">
-          <label class="example-send-yourself-copy">
-            <span class="label-body">Sort by Mean Parent Income</span>
-            <input type="checkbox" id="sort" checked>
-          </label>
-        </div>
-        <div id="chart"></div>
-      </div>
-    </div>
+
+  <h4>Parent Income and Major Choice</h4>
+  <div class="options">
+    <label class="example-send-yourself-copy">
+      <span class="label-body">Sort by Mean Parent Income</span>
+      <input type="checkbox" id="sort" checked>
+    </label>
   </div>
+  <div id="chart"></div>
+
   <div id="tooltip">
     <span class="mean"></span>
     <span class="stdev"></span>
