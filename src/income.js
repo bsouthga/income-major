@@ -11,6 +11,8 @@ let idGen = d => d.subject.toLowerCase().replace(/[\W\s]/g, "");
 
 let tooltip = tooltipFactory();
 
+tooltip.hide();
+
 class incomeChart {
 
   constructor({data, id}) {
@@ -39,7 +41,7 @@ class incomeChart {
 
     let bb = this.container.node().getBoundingClientRect();
 
-    let margin = { top: 50, right: 50, bottom: 50, left: 320 },
+    let margin = { top: 50, right: 5, bottom: 50, left: 280 },
         width = bb.width - margin.left - margin.right,
         height = bb.height - margin.top - margin.bottom;
 
