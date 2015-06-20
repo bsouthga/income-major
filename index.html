@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Income and Major Choice</title>
-  <link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Raleway:700,400' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
   <style>
 
@@ -16,11 +16,6 @@
       stroke: #000000;
       stroke-width: 1px;
       fill: none;
-    }
-
-    circle {
-      fill : rgba(0,0,0,0.4);
-      stroke: #000;
     }
 
     text {
@@ -36,30 +31,64 @@
       stroke-width: 1px;
     }
 
-    tr {
-      font-size: 9px;
+    line.range {
+      stroke: #aaa;
+      fill: #aaa;
+      stroke-dasharray: 3,3;
     }
 
-    tr:hover {
-      background-color: #000;
-      color: #fff;
+    line.bounds {
+      stroke: #aaa;
+      fill: #aaa;
     }
 
-    table {
-      border-spacing: 0;
-    }
-
-
-    tbody {
-        height: 400px;
-        overflow-y: auto;
-        overflow-x: hidden;
+    circle.mean {
+      stroke: #000;
+      fill: #fff;
+      cursor: pointer;
     }
 
     #chart {
       width: 100%;
       height: 600px;
       display: block;
+    }
+
+    #tooltip {
+      display: block;
+      position: absolute;
+      color: #000;
+      font-weight: normal;
+      background: #ffffff;
+      padding: 5px 10px;
+      border: 1px solid #cccccc;
+      border-radius: 5px;
+      z-index: 12;
+    }
+
+    #tooltip:after, #tooltip:before {
+      top: 100%;
+      left: 50%;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    #tooltip:after {
+      border-color: rgba(255, 255, 255, 0);
+      border-top-color: #ffffff;
+      border-width: 10px;
+      margin-left: -10px;
+    }
+
+    #tooltip:before {
+      border-color: rgba(204, 204, 204, 0);
+      border-top-color: #ccc;
+      border-width: 11px;
+      margin-left: -11px;
     }
 
     label {
@@ -72,6 +101,16 @@
       text-align: center;
     }
 
+    text.highlight {
+      font-weight: bolder;
+      cursor: pointer;
+    }
+
+    span.stdev {
+      color: #aaa;
+      font-size: .8em;
+    }
+
   </style>
 </head>
 <body>
@@ -82,10 +121,6 @@
         <h4>Parent Income and Major Choice</h4>
         <div class="options">
           <label class="example-send-yourself-copy">
-            <span class="label-body">Size Bars By Number of Students</span>
-            <input type="checkbox" id="toggle">
-          </label>
-          <label class="example-send-yourself-copy">
             <span class="label-body">Sort by Mean Parent Income</span>
             <input type="checkbox" id="sort" checked>
           </label>
@@ -93,6 +128,10 @@
         <div id="chart"></div>
       </div>
     </div>
+  </div>
+  <div id="tooltip">
+    <span class="mean"></span>
+    <span class="stdev"></span>
   </div>
   <script src="bundle.js"></script>
 </body>
