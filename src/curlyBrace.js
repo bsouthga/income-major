@@ -4,10 +4,10 @@
 
 
 //returns path string d for <path d="This string">
-//a curly brace between x1,y1 and x2,y2, w pixels wide 
-//and q factor, .5 is normal, higher q = more expressive bracket 
+//a curly brace between x1,y1 and x2,y2, w pixels wide
+//and q factor, .5 is normal, higher q = more expressive bracket
 export default function curlyBrace(x1,y1,x2,y2,w,q) {
-  
+
   //Calculate unit vector
   let dx = x1-x2;
   let dy = y1-y2;
@@ -28,9 +28,9 @@ export default function curlyBrace(x1,y1,x2,y2,w,q) {
   let qy4 = (y1 - .75*len*dy) - (1-q)*w*dx;
 
   return (  " M " +  x1 + " " +  y1 +
-            " Q " + qx1 + " " + qy1 + " " + qx2 + " " + qy2 + 
+            " Q " + qx1 + " " + qy1 + " " + qx2 + " " + qy2 +
             " T " + tx1 + " " + ty1 +
             " M " +  x2 + " " +  y2 +
-            " Q " + qx3 + " " + qy3 + " " + qx4 + " " + qy4 + 
+            " Q " + qx3 + " " + qy3 + " " + qx4 + " " + qy4 +
             " T " + tx1 + " " + ty1 );
 }

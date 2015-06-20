@@ -1,13 +1,17 @@
 
-import textures from "textures";
+import tooltipFactory from "./tooltip.js";
 import curlyBrace from "./curlyBrace.js";
+import csv from "./csv.js";
 import d3 from 'd3';
 import _ from 'lodash';
 
-let variableHeight = false;
 let sortCat = 'mean';
 
-export default class incomeChart {
+let idGen = d => d.subject.toLowerCase().replace(/[\W\s]/g, "");
+
+let tooltip = tooltipFactory();
+
+class incomeChart {
 
   constructor({data, id}) {
     this.data = data;
@@ -24,53 +28,33 @@ export default class incomeChart {
       return (x > y) - (x < y);
     };
 
-    let color = d3.scale.category10();
-
     let income = this.data.map(x => {
-      return {
-        ...x,
+      return Object.assign(x, {
         mean: Number(x.mean),
         n: Number(x.n),
         stdev: Number(x.stdev),
-        category: x.category.trim()
-      };
+        subject: x.subject.trim()
+      });
     }).sort(sorter)
-
-    let categories = Array.from(new Set(income.map(x => x.category)));
 
     let bb = this.container.node().getBoundingClientRect();
 
-    let margin = { top: 0, right: 50, bottom: 50, left: 320 },
+    let margin = { top: 50, right: 50, bottom: 50, left: 320 },
         width = bb.width - margin.left - margin.right,
         height = bb.height - margin.top - margin.bottom;
 
-    let totalN = income.reduce((s, d) => s + d.n, 0);
-
     let fixedBarHeight = height/(income.length);
 
-    let variableBarHeight = d => {
-      return variableHeight ? (d.n/totalN)*height : fixedBarHeight;
-    };
-
-
-    let variableBarPad = i => {
-      if (!variableHeight) {
-        return i*fixedBarHeight;
-      }
-      let pad = 0;
-      while(i--) {
-        pad += variableBarHeight(income[i]);
-      }
-      return pad;
-    }
+    let BarPad = i => i*fixedBarHeight;
 
     let x = d3.scale.linear()
       .range([0, width])
       .domain([0, d3.max(income, d => d.mean + d.stdev)]);
 
-
     let xAxis = d3.svg.axis()
         .scale(x)
+        .ticks(5)
+        .tickFormat(d3.format('$,'))
         .orient("bottom");
 
     let svg = this.svg.html('')
@@ -79,56 +63,83 @@ export default class incomeChart {
       .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    let textureGen = categories.reduce((out, c) => {
-      let texture = textures.lines()
-        .orientation("vertical", "horizontal")
-        .size(4)
-        .strokeWidth(1)
-        .shapeRendering("crispEdges")
-        .stroke(color(c));
-      svg.call(texture);
-      out[c] = texture;
-      return out;
-    }, {})
 
     let bar = svg.append('g').selectAll("g")
         .data(income)
       .enter().append("g")
         .classed('bar-g', true)
-        .attr("transform", (d, i) => `translate(0,${variableBarPad(i)})` );
+        .attr("transform", (d, i) => `translate(0,${BarPad(i)})` );
 
     bar.append('text')
       .text(d => d.subject)
+      .attr('class', idGen)
       .attr('y', function(d) {
         let {height} = this.getBBox();
-        return variableBarHeight(d)/2 + height/2;
+        return fixedBarHeight/2 + height/2;
       })
       .attr('x', function() {
         let {width} = this.getBBox();
         return -width - 20;
       })
 
-    let rects = bar.append("rect")
-        .attr('x', d => x(d.mean) - x(d.stdev) )
-        .attr("width", d => 2*x(d.stdev) )
-        .attr("height", d => variableBarHeight(d))
-        .attr('fill', '#fff')
-        .attr('stroke', d => color(d.category) );
+    let curly = svg.append('g')
+      .append('path')
+      .attr('class', 'curlyBrace')
+      .attr('d', curlyBrace(
+          x(income[0].mean) + x(income[0].stdev),
+          -5,
+          x(income[0].mean) - x(income[0].stdev),
+          -5,
+          20,
+          0.5
+        )
+      )
+
+    let curlyText = svg.append('g')
+      .append('text')
+      .text('Mean Parent Income +/- 1 Standard Deviation')
+      .attr({
+        x : function() {
+          return x(income[0].mean) - this.getBBox().width/2;
+        },
+        y : -30
+      })
 
     bar.append('line')
       .attr({
-        stroke: d => color(d.category),
-        x1 : d => x(d.mean),
-        x2 : d => x(d.mean),
-        y1 : 0,
-        y2 : variableBarHeight
+        class: d => 'range ' + idGen(d),
+        x1 : d => x(d.mean) - x(d.stdev) ,
+        x2 : d => x(d.mean) + x(d.stdev) ,
+        y1 : fixedBarHeight/2 ,
+        y2 : fixedBarHeight/2
       })
 
-    rects.on('mouseover', function() {
-      d3.select(this).attr('fill', d => color(d.category));
-    }).on('mouseout', function() {
-      d3.select(this).attr('fill', '#fff')
-    })
+    bar.append('line')
+      .attr({
+        class: d => 'bounds ' + idGen(d),
+        x1 : d => x(d.mean) - x(d.stdev) ,
+        x2 : d => x(d.mean) - x(d.stdev) ,
+        y1 : fixedBarHeight/3,
+        y2 : fixedBarHeight*2/3
+      })
+
+    bar.append('line')
+      .attr({
+        class: d => 'bounds ' + idGen(d),
+        x1 : d => x(d.mean) + x(d.stdev) ,
+        x2 : d => x(d.mean) + x(d.stdev) ,
+        y1 : fixedBarHeight/3,
+        y2 : fixedBarHeight*2/3
+      })
+
+
+    bar.append('circle')
+      .attr({
+        class: d => 'mean ' + idGen(d),
+        r: 4,
+        cx : d => x(d.mean),
+        cy : fixedBarHeight/2
+      })
 
 
     svg.append("g")
@@ -136,45 +147,74 @@ export default class incomeChart {
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis)
 
+    let fmt = d3.format('$,');
+
+    bar.on('mouseover', function(d) {
+
+      let thisBar = d3.select(this);
+
+      thisBar.select('text').classed('highlight', true);
+
+      tooltip
+        .text({mean: fmt(d.mean), stdev: `(&plusmn;${fmt(d.stdev)})`})
+        .position(thisBar.select('circle.mean').node());
+
+    }).on('mouseout', () => {
+      bar.selectAll('text').classed('highlight', false);
+      tooltip.hide();
+    })
+
 
     d3.select('#sort').on('click', () => {
       sortCat = sortCat === 'subject' ? 'mean' : 'subject';
+
       income.sort(sorter)
+
       bar.sort(sorter)
         .transition()
         .duration(1000)
         .delay((d, i) => i*10)
-        .attr("transform", (d, i) => `translate(0,${variableBarPad(i)})` );
+        .attr("transform", (d, i) => `translate(0,${BarPad(i)})` );
+
+      curly
+        .transition()
+        .duration(1000)
+        .attr('d', curlyBrace(
+            x(income[0].mean) + x(income[0].stdev),
+            -5,
+            x(income[0].mean) - x(income[0].stdev),
+            -5,
+            20,
+            0.5
+          )
+        )
+
+      curlyText
+        .transition()
+        .duration(1000)
+        .attr({
+          x : function() {
+            return x(income[0].mean) - this.getBBox().width/2;
+          },
+          y : -30
+        })
+
     })
 
-    d3.select('#toggle').on('click', () => {
-
-      variableHeight = !variableHeight;
-
-      let trans = bar.transition()
-          .duration(1000)
-          .delay((d, i) => i*10)
-          .attr("transform", (d, i) => `translate(0,${variableBarPad(i)})` )
-
-      trans.selectAll('rect')
-          .attr('height', d => variableBarHeight(d));
-
-      trans.selectAll('line')
-          .attr({
-            y1 : 0,
-            y2 : variableBarHeight
-          });
-
-      trans.selectAll('text')
-        .attr('y', function(d) {
-          let {height} = this.getBBox();
-          return variableBarHeight(d)/2 + height/2;
-        });
-
-    });
   }
 
+}
 
 
+export default async function render() {
+
+  let income = await csv('./major_by_income.csv');
+
+  let plot = new incomeChart({data : income, id : '#chart'});
+
+  plot.draw()
+
+  window.addEventListener('resize', _.debounce(::plot.draw, 50))
 
 }
+

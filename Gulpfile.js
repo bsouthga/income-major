@@ -13,6 +13,8 @@ var watchify = require('watchify');
 var livereload = require('gulp-livereload');
 var server = require('gulp-server-livereload');
 var ghPages = require('gulp-gh-pages');
+var uglify = require('gulp-uglify');
+
 
 let customOpts = {
   entries: ['./src/index.js'],
@@ -58,13 +60,22 @@ gulp.task('server', function() {
     }));
 });
 
-gulp.task('default', ['js', 'server']);
 
-gulp.task('deploy', function() {
+gulp.task('compress', function() {
+  return gulp.src('./bundle.js')
+    .pipe(uglify())
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('deploy', ['compress'], function() {
   return gulp.src([
       './index.html',
-      './bundle.js',
+      './dist/*',
       './*.csv'
     ])
     .pipe(ghPages());
 });
+
+
+
+gulp.task('default', ['js', 'server']);
