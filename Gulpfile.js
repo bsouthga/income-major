@@ -61,7 +61,7 @@ gulp.task('server', function() {
 });
 
 
-gulp.task('compress', function() {
+gulp.task('compress', ['js'], function() {
   return gulp.src('./bundle.js')
     .pipe(uglify())
     .pipe(gulp.dest('dist'));
