@@ -168,7 +168,6 @@ class incomeChart {
       tooltip.hide();
     })
 
-
     d3.select('#sort').on('click', () => {
       sortCat = sortCat === 'subject' ? 'mean' : 'subject';
 
@@ -218,8 +217,8 @@ export default async function render() {
 
   plot.draw()
 
-  let renderCallback = _.debounce(::plot.draw, 50);
-  new pym.Child({renderCallback});
+  let child, renderCallback = _.debounce(() => {plot.draw(); child.sendHeight();}, 50);
+  child = new pym.Child({renderCallback});
 
 }
 
