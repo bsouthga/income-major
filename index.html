@@ -119,19 +119,26 @@
       color: #000;
     }
 
+    .chart-container {
+      display: block;
+      height: 700px;
+    }
+
   </style>
 </head>
 <body>
-
-  <h4>Parent Income and Major Choice</h4>
-  <div class="options">
-    <label class="example-send-yourself-copy">
-      <span class="label-body">Sort by Mean Parent Income</span>
-      <input type="checkbox" id="sort" checked>
-    </label>
+  <div class="chart-container">
+    <h4>Parent Income and Major Choice</h4>
+    <div class="options">
+      <label class="example-send-yourself-copy">
+        <span class="label-body">Sort by Mean Parent Income</span>
+        <input type="checkbox" id="sort" checked>
+      </label>
+    </div>
+    <div id="chart"></div>
+    <div class="source"><a href="http://bsou.io">Ben Southgate</a>, 2015</div>
   </div>
-  <div id="chart"></div>
-  <div class="source"><a href="http://bsou.io">Ben Southgate</a>, 2015</div>
+
   <div id="tooltip">
     <span class="mean"></span>
     <span class="stdev"></span>

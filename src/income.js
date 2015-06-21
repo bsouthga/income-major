@@ -217,8 +217,8 @@ export default async function render() {
 
   plot.draw()
 
-  let child, renderCallback = _.debounce(() => {plot.draw(); child.sendHeight();}, 50);
-  child = new pym.Child({renderCallback});
+  let renderCallback = _.debounce(::plot.draw, 50);
+  new pym.Child({renderCallback});
 
 }
 
