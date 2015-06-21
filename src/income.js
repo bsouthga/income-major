@@ -4,6 +4,8 @@ import curlyBrace from "./curlyBrace.js";
 import csv from "./csv.js";
 import d3 from 'd3';
 import _ from 'lodash';
+import pym from 'pym.js';
+
 
 let sortCat = 'mean';
 
@@ -216,7 +218,8 @@ export default async function render() {
 
   plot.draw()
 
-  window.addEventListener('resize', _.debounce(::plot.draw, 50))
+  let renderCallback = _.debounce(::plot.draw, 50);
+  new pym.Child({renderCallback});
 
 }
 
