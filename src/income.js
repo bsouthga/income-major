@@ -40,7 +40,7 @@ class incomeChart {
     this.svg = this.container.html('').append('svg');
   }
 
-  draw() {
+  draw({sortAfterDraw}) {
 
     let sorter = (a, b) => {
       let x = a[sortCat];
@@ -189,9 +189,12 @@ class incomeChart {
       tooltip.hide();
     })
 
-    d3.select('#sort').on('click', () => {
 
-      this.draw(); //iphone hack
+    let sortRows = () => {
+
+      if (!sortAfterDraw) {
+        return this.draw({sortAfterDraw: true});
+      }
 
       sortCat = sortCat === 'subject' ? 'mean' : 'subject';
 
@@ -226,7 +229,13 @@ class incomeChart {
           y : -30
         })
 
-    })
+    }
+
+    if (sortAfterDraw) {
+      sortRows(sortAfterDraw);
+    }
+
+    d3.select('#sort').on('click', sortRows);
 
   }
 
