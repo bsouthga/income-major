@@ -7,7 +7,7 @@ import _ from 'lodash';
 import pym from 'pym.js';
 
 
-let sortCat = 'mean';
+let sortCat = 'subject';
 
 let idGen = d => d.subject.toLowerCase().replace(/[\W\s]/g, "");
 
@@ -43,7 +43,7 @@ class incomeChart {
 
     let bb = this.container.node().getBoundingClientRect();
 
-    let margin = { top: 50, right: 5, bottom: 50, left: 280 },
+    let margin = { top: 50, right: 5, bottom: 20, left: 280 },
         width = bb.width - margin.left - margin.right,
         height = bb.height - margin.top - margin.bottom;
 
@@ -218,6 +218,7 @@ export default async function render() {
   plot.draw()
 
   let renderCallback = _.debounce(::plot.draw, 50);
+
   new pym.Child({renderCallback});
 
 }
