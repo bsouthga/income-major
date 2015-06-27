@@ -6,6 +6,22 @@ import d3 from 'd3';
 import _ from 'lodash';
 import pym from 'pym.js';
 
+let params = () => {
+  return window
+    .location
+    .search
+    .slice(1)
+    .split("&")
+    .reduce((o, v) => {
+      let [key, value] = v.split("=");
+      o[key] = value;
+      return o;
+    }, {})
+}
+
+if (params().noSource) {
+  d3.select('.source').remove();
+}
 
 let sortCat = 'subject';
 
@@ -43,11 +59,14 @@ class incomeChart {
 
     let bb = this.container.node().getBoundingClientRect();
 
-    let margin = { top: 50, right: 5, bottom: 20, left: 280 },
+    let smallScreen = bb.width < 500;
+
+    let margin = { top: 50, right: 5, bottom: 20, left: (smallScreen ? 20 : 280) },
         width = bb.width - margin.left - margin.right,
         height = bb.height - margin.top - margin.bottom;
 
-    let fixedBarHeight = height/(income.length);
+
+    let fixedBarHeight = height/income.length;
 
     let BarPad = i => i*fixedBarHeight;
 
@@ -79,11 +98,13 @@ class incomeChart {
       .attr('class', idGen)
       .attr('y', function(d) {
         let {height} = this.getBBox();
-        return fixedBarHeight/2 + height/2;
+        return smallScreen ?
+          (fixedBarHeight/2 - height/2) :
+          (fixedBarHeight/2 + height/2);
       })
-      .attr('x', function() {
+      .attr('x', function(d) {
         let {width} = this.getBBox();
-        return -width - 20;
+        return smallScreen ? (x(d.mean) - width/2) : (-width - 20);
       })
 
     let curly = svg.append('g')
@@ -214,8 +235,6 @@ export default async function render() {
   let income = await csv('./major_by_income.csv');
 
   let plot = new incomeChart({data : income, id : '#chart'});
-
-  plot.draw()
 
   let renderCallback = _.debounce(::plot.draw, 50);
 
