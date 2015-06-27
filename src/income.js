@@ -37,7 +37,6 @@ class incomeChart {
     this.data = data;
     this.id = id;
     this.container = d3.select(id);
-    this.svg = this.container.html('').append('svg');
   }
 
   draw() {
@@ -56,6 +55,8 @@ class incomeChart {
         subject: x.subject.trim()
       });
     }).sort(sorter)
+
+    this.svg = this.container.html('').append('svg');
 
     let bb = this.container.node().getBoundingClientRect();
 
