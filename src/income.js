@@ -40,7 +40,7 @@ class incomeChart {
     this.svg = this.container.html('').append('svg');
   }
 
-  draw({sortAfterDraw}) {
+  draw() {
 
     let sorter = (a, b) => {
       let x = a[sortCat];
@@ -189,12 +189,7 @@ class incomeChart {
       tooltip.hide();
     })
 
-
-    let sortRows = () => {
-
-      if (!sortAfterDraw) {
-        return this.draw({sortAfterDraw: true});
-      }
+    d3.select('#sort').on('click', () => {
 
       sortCat = sortCat === 'subject' ? 'mean' : 'subject';
 
@@ -204,7 +199,8 @@ class incomeChart {
         .transition()
         .duration(1000)
         .delay((d, i) => i*10)
-        .attr("transform", (d, i) => `translate(0,${BarPad(i)})` );
+        .attr("transform", (d, i) => `translate(0,${BarPad(i)})` )
+
 
       curly
         .transition()
@@ -229,13 +225,7 @@ class incomeChart {
           y : -30
         })
 
-    }
-
-    if (sortAfterDraw) {
-      sortRows(sortAfterDraw);
-    }
-
-    d3.select('#sort').on('click', sortRows);
+    })
 
   }
 
@@ -248,7 +238,7 @@ export default async function render() {
 
   let plot = new incomeChart({data : income, id : '#chart'});
 
-  let renderCallback = _.debounce(::plot.draw, 50);
+  let renderCallback = ::plot.draw;
 
   new pym.Child({renderCallback});
 
