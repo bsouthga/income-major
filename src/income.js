@@ -21,7 +21,7 @@ class incomeChart {
     this.data = data;
     this.id = id;
     this.container = d3.select(id);
-    this.svg = this.container.append('svg');
+    this.svg = this.container.html('').append('svg');
   }
 
   draw() {
