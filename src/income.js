@@ -190,6 +190,9 @@ class incomeChart {
     })
 
     d3.select('#sort').on('click', () => {
+
+      this.draw(); //iphone hack
+
       sortCat = sortCat === 'subject' ? 'mean' : 'subject';
 
       income.sort(sorter)
