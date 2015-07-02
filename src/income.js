@@ -23,7 +23,7 @@ if (params().noSource) {
   d3.select('.source').remove();
 }
 
-let sortCat = 'subject';
+let sortCat = 'mean';
 
 let idGen = d => d.subject.toLowerCase().replace(/[\W\s]/g, "");
 
@@ -244,4 +244,3 @@ export default async function render() {
   new pym.Child({renderCallback});
 
 }
-
