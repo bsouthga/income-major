@@ -1,3 +1,4 @@
+'use strict';
 
 import tooltipFactory from "./tooltip.js";
 import curlyBrace from "./curlyBrace.js";
@@ -123,7 +124,7 @@ class incomeChart {
 
     let curlyText = svg.append('g')
       .append('text')
-      .text('Mean Parent Income +/- 1 Standard Deviation')
+      .text('Mean Household Income +/- 1 Standard Deviation')
       .attr({
         x : function() {
           return x(income[0].mean) - this.getBBox().width/2;
